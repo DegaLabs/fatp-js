@@ -282,7 +282,7 @@ const FATP = class {
     }
 
     async doSwap({
-        keys, from, to, dx, minDy, deadline, paymentAmount = '16000000000', ttl = 1800000
+        publicKey, from, to, dx, minDy, deadline, paymentAmount = '16000000000', ttl = 1800000, gasPrice = 1
     }) {
         let runtimeArgs = {};
         runtimeArgs = RuntimeArgs.fromMap({
@@ -293,34 +293,28 @@ const FATP = class {
             deadline: CLValueBuilder.u64(deadline)
         })
 
-        let trial = 5;
-        while (true) {
-            try {
-                let hash = await this.contractClient.contractCall({
-                    entryPoint: "swap",
-                    keys: keys,
-                    paymentAmount,
-                    runtimeArgs,
-                    cb: (deployHash) => {
-                        console.log("deployHash", deployHash);
-                    },
-                    ttl,
-                });
+        const contractHashAsByteArray = utils.contractHashToByteArray(this.contractHash)
 
-                return hash;
-            } catch (e) {
-                trial--
-                if (trial == 0) {
-                    throw e;
-                }
-                console.log('waiting 3 seconds')
-                await sleep(3000)
-            }
-        }
+        const deploy = CaspSDK.DeployUtil.makeDeploy(
+            new CaspSDK.DeployUtil.DeployParams(
+                publicKey,
+                this.chainName,
+                gasPrice,
+                ttl,
+                [],
+            ),
+            CaspSDK.DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                contractHashAsByteArray,
+                "swap",
+                runtimeArgs,
+            ),
+            CaspSDK.DeployUtil.standardPayment(paymentAmount),
+        )
+        return deploy
     }
 
     async addLiquidity({
-        keys, amounts, minToMint, deadline, paymentAmount = '35000000000', ttl = 1800000
+        publicKey, amounts, minToMint, deadline, paymentAmount = '35000000000', ttl = 1800000, gasPrice = 1
     }) {
         let runtimeArgs = {};
         runtimeArgs = RuntimeArgs.fromMap({
@@ -329,30 +323,24 @@ const FATP = class {
             deadline: CLValueBuilder.u64(deadline)
         })
 
-        let trial = 5;
-        while (true) {
-            try {
-                let hash = await this.contractClient.contractCall({
-                    entryPoint: "add_liquidity",
-                    keys: keys,
-                    paymentAmount,
-                    runtimeArgs,
-                    cb: (deployHash) => {
-                        console.log("deployHash", deployHash);
-                    },
-                    ttl,
-                });
+        const contractHashAsByteArray = utils.contractHashToByteArray(this.contractHash)
 
-                return hash;
-            } catch (e) {
-                trial--
-                if (trial == 0) {
-                    throw e;
-                }
-                console.log('waiting 3 seconds')
-                await sleep(3000)
-            }
-        }
+        const deploy = CaspSDK.DeployUtil.makeDeploy(
+            new CaspSDK.DeployUtil.DeployParams(
+                publicKey,
+                this.chainName,
+                gasPrice,
+                ttl,
+                [],
+            ),
+            CaspSDK.DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                contractHashAsByteArray,
+                "swap",
+                runtimeArgs,
+            ),
+            CaspSDK.DeployUtil.standardPayment(paymentAmount),
+        )
+        return deploy
     }
 
     async getAdminBalance(swap, tokenIndex) {

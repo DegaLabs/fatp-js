@@ -213,7 +213,7 @@ const FATP = class {
         for (var i = 0; i < numToken; i++) {
             if (i == from) {
                 _x = x
-            } else if (i == to) {
+            } else if (i != to) {
                 _x = xp[i]
             } else {
                 continue
@@ -406,6 +406,7 @@ const FATP = class {
         let y = this.getY(this.getAPricise(swap), from, to, x, xp)
 
         let dy = new BN(xp[to]).minus(y).minus(1)
+        console.log('dy', dy.toFixed(0))
         let dyFee = this.muldiv(dy, swap.swapFee, 10000000000)
         dy = dy.minus(dyFee).dividedBy(multipliers[to])
 
@@ -463,7 +464,7 @@ const FATP = class {
     }
 
     getAPricise(swap) {
-        const currentTime = Math.floor(Date.now() / 1000)
+        const currentTime = Math.floor(Date.now())
         const t1 = swap.futurelATime
         const a1 = swap.futureA
 
